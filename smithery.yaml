@@ -1,0 +1,53 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => {
+      const args = ['-y', 'mongodb-mcp-server'];
+      if (config.connectionString) {
+        args.push('--connectionString', config.connectionString);
+      }
+      if (config.apiClientId) {
+        args.push('--apiClientId', config.apiClientId, '--apiClientSecret', config.apiClientSecret);
+      }
+      if (config.readOnly) args.push('--readOnly');
+      if (config.indexCheck) args.push('--indexCheck');
+      if (config.logPath) args.push('--logPath', config.logPath);
+      if (config.disabledTools && config.disabledTools.length > 0) {
+        args.push('--disabledTools', ...config.disabledTools);
+      }
+      return { command: 'npx', args };
+    }
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    properties:
+      connectionString:
+        type: string
+        description: MongoDB connection string
+      apiClientId:
+        type: string
+        description: Atlas API client ID
+      apiClientSecret:
+        type: string
+        description: Atlas API client secret
+      readOnly:
+        type: boolean
+        default: false
+        description: Read-only mode
+      indexCheck:
+        type: boolean
+        default: false
+        description: Enforce index usage
+      logPath:
+        type: string
+        description: Custom log folder
+      disabledTools:
+        type: array
+        items:
+          type: string
+        description: Disable tools
+  exampleConfig: {}
